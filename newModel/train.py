@@ -8,7 +8,7 @@ import cv2
 import os
 from tqdm import tqdm
 
-# Configuration
+# Configuration (EDIT THIS)
 CFG = {
     'frame_size': 224,
     'num_frames': 15,
@@ -19,7 +19,7 @@ CFG = {
     'dct_channels': 3
 }
 
-# DCT Transform Class
+# DCT Transform Class (new)
 class DCTTransform:
     def __call__(self, img):
         img_np = np.array(img)
@@ -27,7 +27,7 @@ class DCTTransform:
         dct_blocks = [cv2.dct(np.float32(ycrcb[..., i])) for i in range(3)]
         return torch.tensor(np.stack(dct_blocks, axis=-1), dtype=torch.float32)
 
-# Dataset Class
+# Dataset Class (WORK HERE)
 class DeepFakeDataset(Dataset):
     def __init__(self, root_dir, transform=None):
         self.samples = []
@@ -47,14 +47,14 @@ class DeepFakeDataset(Dataset):
     def __len__(self):
         return len(self.samples)
 
-# Model Architecture
+# Model Architecture (UNDERSTAND)
 class EfficientTSM(nn.Module):
     def __init__(self):
         super().__init__()
         self.backbone = models.efficientnet_b0(pretrained=True)
         self.backbone.features[0] = nn.Conv2d(CFG['dct_channels'], 32, kernel_size=3, stride=2, padding=1, bias=False)
         
-        # Temporal Shift Module
+        # Temporal Shift Module (IMP)
         self.tsm_conv = nn.Sequential(
             nn.Conv3d(1280, 512, kernel_size=(3,1,1), padding=(1,0,0)),
             nn.ReLU(),
@@ -84,7 +84,7 @@ class EfficientTSM(nn.Module):
         temporal_features = self.tsm_conv(pooled.unsqueeze(2))
         return self.classifier(temporal_features.squeeze())
 
-# Training Setup
+# Training Setup (EDIT HERE)
 transform = transforms.Compose([
     transforms.Lambda(lambda x: cv2.resize(x, (CFG['frame_size'], CFG['frame_size']))),
     DCTTransform(),
@@ -98,7 +98,7 @@ model = EfficientTSM()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=CFG['lr'])
 
-# Training Loop
+# Training Loop (DONT TOUCH TILL TRAIN_DATA)
 for epoch in range(CFG['epochs']):
     model.train()
     running_loss = 0.0
